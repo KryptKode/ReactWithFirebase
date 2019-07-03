@@ -7,14 +7,27 @@ const config = {
     storageBucket: process.env.REACT_APP_STORAGE_BUCKET,
     messagingSenderId: process.env.REACT_APP_MESSAGING_SENDER_ID,
     appId: process.env.REACT_APP_MESSAGING_APP_ID,
-  };
+};
 
-  app.initializeApp(config);
+app.initializeApp(config);
 
-  class Firebase {
-      constructor(){
+class Firebase {
+    constructor() {
+        this.auth = app.auth();
+    }
 
-      }
-  }
+    doCreateUserWithEmailAndPassword = (email, password) =>
+        this.auth.createUserWithEmailAndPassword(email, password);
 
-  export default Firebase
+    doSignInWithEmailAndPassword = (email, password) =>
+        this.auth.signInWithEmailAndPassword(email, password);
+
+    doSignOut = () => this.auth.signOut();
+
+    doPasswordReset = email => this.auth.sendPasswordResetEmail(email);
+
+    doPasswordUpdate = password =>
+      this.auth.currentUser.updatePassword(password);
+}
+
+export default Firebase
