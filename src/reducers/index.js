@@ -1,8 +1,8 @@
 import {combineReducers} from 'redux';
 
-import sessionReducer from './sessions';
-import usersReducer from './users';
-import messagesReducer from './messages';
+import sessionReducer, {AUTH_USER_SET}from './sessions';
+import usersReducer, {USERS_SET, USER_SET} from './users';
+import messagesReducer, {MESSAGES_SET, MESSAGES_LIMIT_SET} from './messages';
 
 const rootReducer = combineReducers({
     sessionState:sessionReducer,
@@ -11,3 +11,4 @@ const rootReducer = combineReducers({
 });
 
 export default rootReducer;
+export  {AUTH_USER_SET, USERS_SET, USER_SET,  MESSAGES_LIMIT_SET, MESSAGES_SET};

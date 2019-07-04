@@ -1,15 +1,20 @@
 import React, { Component } from 'react';
+import { connect } from 'react-redux';
+import { compose } from 'recompose';
 
-import { withAuthorization, AuthUserContext } from '../Session';
+import { withAuthorization } from '../Session';
 import { withFirebase } from '../Firebase';
 
-const Home = () => (
-    <div>
-        <h1>Home</h1>
+const Home = ({ authUser }) => {
+    return (
+        <div>
+            
+            <h1>Home</h1>
 
-        <Messages />
-    </div>
-);
+            <Messages authUser={authUser} />
+        </div>
+    )
+};
 
 class MessagesBase extends Component {
 
@@ -72,30 +77,26 @@ class MessagesBase extends Component {
         const { text, messages, loading } = this.state;
 
         return (
-            <AuthUserContext.Consumer>
 
-                {
-                    authUser => (
-                        <div>
-                            {loading && <div>Loading ...</div>}
-                            {messages ? (
-                                <MessageList messages={messages} />
-                            ) : (
-                                    <div> There are no messages</div>
-                                )}
+            <div>
+                {loading && <div>Loading ...</div>}
+                {messages ? (
+                    <MessageList messages={messages} />
+                ) : (
+                        <div> There are no messages</div>
+                    )}
 
-                            <form onSubmit={event => this.onCreateMessage(event, authUser)}>
-                                <input
-                                    type="text"
-                                    value={text}
-                                    onChange={this.onChangeText}
-                                />
-                                <button type="submit">Send</button>
-                            </form>
-                        </div>
-                    )
-                }
-            </AuthUserContext.Consumer>
+                <form onSubmit={event => this.onCreateMessage(event, this.props.authUser)}>
+                    <input
+                        type="text"
+                        value={text}
+                        onChange={this.onChangeText}
+                    />
+                    <button type="submit">Send</button>
+                </form>
+            </div>
+
+
         );
     }
 
@@ -118,6 +119,13 @@ const MessageItem = ({ message }) => (
     </li>
 );
 
+
+const mapStateToProps = state => {
+    return { authUser: state.sessionState.authUser }
+}
+
 const condition = (authUser) => !!authUser;
 
-export default withAuthorization(condition)(Home);
+export default compose(withAuthorization(condition),
+    connect(mapStateToProps),
+)(Home);
