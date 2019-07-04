@@ -1,10 +1,11 @@
 import React, { Component } from 'react';
-import { Link, withRouter} from 'react-router-dom';
-import {compose} from 'recompose';
+import { Link, withRouter } from 'react-router-dom';
+import { compose } from 'recompose';
 
 import { withFirebase } from '../Firebase'
-import {SignInLink} from '../SignIn'
+import { SignInLink } from '../SignIn'
 import * as ROUTES from '../../constants/routes';
+import * as ROLES from '../../constants/roles';
 
 const SignUpPage = () => (
     <div>
@@ -19,6 +20,7 @@ const INITIAL_STATE = {
     email: '',
     passwordOne: '',
     passwordTwo: '',
+    isAdmin: false,
     error: null,
 };
 
@@ -30,19 +32,28 @@ class SignUpFormBase extends Component {
         this.state = { ...INITIAL_STATE };
     }
 
+    onChangeCheckbox = event => {
+        this.setState({ [event.target.name]: event.target.checked });
+    };
+
     onSubmit = (event) => {
         event.preventDefault();
-        const { username, email, passwordOne } = this.state;
+        const { username, email, passwordOne, isAdmin } = this.state;
         const firebase = this.props.firebase
+        const roles = {};
+        if(isAdmin){
+            roles[ROLES.ADMIN] = ROLES.ADMIN;
+        }
         firebase
             .doCreateUserWithEmailAndPassword(email, passwordOne)
             .then(authUser => {
-               return firebase.user(authUser.user.uid)
-                        .set({
-                            username,
-                            email,
-                        })
-            }).then(()=>{
+                return firebase.user(authUser.user.uid)
+                    .set({
+                        username,
+                        email,
+                        roles,
+                    })
+            }).then(() => {
                 this.setState({ ...INITIAL_STATE });
                 this.props.history.push(ROUTES.HOME);
             })
@@ -61,6 +72,7 @@ class SignUpFormBase extends Component {
             email,
             passwordOne,
             passwordTwo,
+            isAdmin,
             error,
         } = this.state;
 
@@ -100,6 +112,16 @@ class SignUpFormBase extends Component {
                     type="password"
                     placeholder="Confirm Password"
                 />
+
+                <label>
+                    Admin:
+          <input
+                        name="isAdmin"
+                        type="checkbox"
+                        checked={isAdmin}
+                        onChange={this.onChangeCheckbox}
+                    />
+                </label>
                 <button type="submit" disabled={isInvalid}>
                     Sign Up
                 </button>
@@ -109,7 +131,7 @@ class SignUpFormBase extends Component {
     }
 }
 
-const SignUpForm = compose(withRouter,withFirebase)(SignUpFormBase);
+const SignUpForm = compose(withRouter, withFirebase)(SignUpFormBase);
 
 const SignUpLink = () => (
     <p>

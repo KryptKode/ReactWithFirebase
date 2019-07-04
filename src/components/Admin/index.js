@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import {compose} from 'recompose';
 
 import { withAuthorization } from '../Session'
 import { withFirebase } from '../Firebase'
@@ -82,7 +83,7 @@ const UserList = ({ users }) => (
     </ul>
   );
 
-// const condition = authUser =>
-//     authUser && !!authUser.roles[ROLES.ADMIN];
+const condition = authUser =>
+    authUser && !!authUser.roles[ROLES.ADMIN];
 
-export default withFirebase(AdminPage);
+export default compose(withAuthorization(condition),  withFirebase)(AdminPage);
